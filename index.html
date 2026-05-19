@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Academic Analytics Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ══ BLOBS ══ -->
+<div class="blobs" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-wrap">
+    <a class="brand" href="#hero">
+      <span class="brand-icon">◈</span>
+      <span class="brand-text">AcadAnalytics</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a class="nl" href="#section-upload">Upload</a>
+      <a class="nl" href="#section-dashboard">Dashboard</a>
+      <a class="nl" href="#section-charts">Charts</a>
+      <a class="nl" href="#section-insights">Insights</a>
+      <a class="nl" href="#section-table">Records</a>
+      <a class="nl" href="#section-export">Export</a>
+    </div>
+    <button class="nav-upload-btn" id="navUploadBtn">Upload Sheet</button>
+    <button class="hamburger" id="hamburger">☰</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="hero">
+  <div class="hero-body">
+    <div class="hero-pill">AI-Powered Analytics Engine</div>
+    <h1 class="hero-h1">Academic Performance<br><span class="hl">Intelligence Platform</span></h1>
+    <p class="hero-p">Upload any Excel mark sheet — any column format — and get instant, consistent, deeply intelligent analytics. No hardcoding. No guessing.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" id="heroUploadBtn">
+        <span>Upload Excel Sheet</span><span class="btn-arr">→</span>
+      </button>
+      <a class="btn-ghost" href="#section-dashboard">View Dashboard</a>
+    </div>
+    <div class="hero-meta-row">
+      <div class="hm"><span class="hm-val">Auto</span><span class="hm-lbl">Column Detection</span></div>
+      <div class="hm-sep"></div>
+      <div class="hm"><span class="hm-val">1</span><span class="hm-lbl">Normalized Dataset</span></div>
+      <div class="hm-sep"></div>
+      <div class="hm"><span class="hm-val">12+</span><span class="hm-lbl">Live Charts</span></div>
+      <div class="hm-sep"></div>
+      <div class="hm"><span class="hm-val">Zero</span><span class="hm-lbl">Hardcoded Values</span></div>
+    </div>
+  </div>
+  <div class="hero-card-wrap">
+    <div class="hero-card glass-card">
+      <div class="hcard-top">
+        <span class="hcard-icon">◈</span>
+        <span class="hcard-title">Live Analytics</span>
+        <span class="hcard-dot" id="hcardDot"></span>
+      </div>
+      <div class="hcard-stats" id="hcardStats">
+        <div class="hcs"><span class="hcs-v" id="hcTotal">—</span><span class="hcs-l">Students</span></div>
+        <div class="hcs"><span class="hcs-v" id="hcPass">—</span><span class="hcs-l">Pass Rate</span></div>
+        <div class="hcs"><span class="hcs-v" id="hcAvg">—</span><span class="hcs-l">Avg Score</span></div>
+      </div>
+      <div class="hcard-bars" id="hcardBars">
+        <div class="hcb-row"><span class="hcb-lbl">Pass Rate</span><div class="hcb-track"><div class="hcb-fill" id="hcBar1" style="width:0%"></div></div><span class="hcb-val" id="hcBar1V">—</span></div>
+        <div class="hcb-row"><span class="hcb-lbl">Avg Score</span><div class="hcb-track"><div class="hcb-fill" id="hcBar2" style="width:0%"></div></div><span class="hcb-val" id="hcBar2V">—</span></div>
+        <div class="hcb-row"><span class="hcb-lbl">Excellent</span><div class="hcb-track"><div class="hcb-fill" id="hcBar3" style="width:0%"></div></div><span class="hcb-val" id="hcBar3V">—</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ UPLOAD ══ -->
+<section class="page-section" id="section-upload">
+  <div class="container">
+    <div class="sec-label">Step 01</div>
+    <h2 class="sec-title">Upload <span class="hl">Mark Sheet</span></h2>
+    <p class="sec-sub">Any Excel format — the engine auto-detects every column intelligently</p>
+
+    <div class="upload-card glass-card" id="uploadCard">
+      <div id="uploadIdle" class="upload-idle">
+        <div class="upload-ring">
+          <div class="upload-ring-inner">⬆</div>
+        </div>
+        <h3>Drop your Excel file here</h3>
+        <p>Supports .xlsx and .xls — any column structure</p>
+        <button class="btn-primary" id="uploadTrigger">Browse Files</button>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" hidden/>
+      </div>
+      <div id="uploadDone" class="upload-done hidden">
+        <div class="upload-ok">✓</div>
+        <h3 id="uploadFileName">file.xlsx</h3>
+        <p id="uploadFileInfo">Loaded</p>
+        <button class="btn-outline" id="changeFileBtn">Change File</button>
+      </div>
+    </div>
+
+    <!-- Schema detection panel -->
+    <div class="schema-panel glass-card hidden" id="schemaPanel">
+      <div class="schema-head">
+        <span class="schema-icon">◈</span>
+        <h4>Auto-Detected Schema</h4>
+        <span class="schema-mode" id="schemaMode">—</span>
+      </div>
+      <div class="schema-chips" id="schemaChips"></div>
+      <div class="schema-issues" id="schemaIssues"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DASHBOARD ══ -->
+<section class="page-section" id="section-dashboard">
+  <div class="container">
+    <div class="sec-label">Step 02</div>
+    <h2 class="sec-title">Performance <span class="hl">Dashboard</span></h2>
+    <p class="sec-sub">All metrics computed from one normalized dataset — always consistent</p>
+
+    <!-- KPI grid -->
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi glass-card"><div class="kpi-ico" style="--c:rgba(250,204,21,.15)">◈</div><div><div class="kpi-v" id="kpiTotal">—</div><div class="kpi-l">Total Students</div></div></div>
+      <div class="kpi glass-card"><div class="kpi-ico" style="--c:rgba(34,197,94,.12)">◉</div><div><div class="kpi-v" id="kpiPass">—</div><div class="kpi-l">Pass Rate</div></div></div>
+      <div class="kpi glass-card"><div class="kpi-ico" style="--c:rgba(239,68,68,.12)">◌</div><div><div class="kpi-v" id="kpiFail">—</div><div class="kpi-l">Failed Students</div></div></div>
+      <div class="kpi glass-card"><div class="kpi-ico" style="--c:rgba(250,204,21,.15)">▲</div><div><div class="kpi-v" id="kpiHigh">—</div><div class="kpi-l">Highest Score</div></div></div>
+      <div class="kpi glass-card"><div class="kpi-ico" style="--c:rgba(250,204,21,.15)">▦</div><div><div class="kpi-v" id="kpiAvg">—</div><div class="kpi-l">Class Average</div></div></div>
+      <div class="kpi glass-card"><div class="kpi-ico" style="--c:rgba(250,204,21,.15)">✦</div><div><div class="kpi-v" id="kpiGPA">—</div><div class="kpi-l">Avg GPA</div></div></div>
+      <div class="kpi glass-card"><div class="kpi-ico" style="--c:rgba(250,204,21,.15)">◒</div><div><div class="kpi-v" id="kpiSubjects">—</div><div class="kpi-l">Subjects</div></div></div>
+      <div class="kpi glass-card"><div class="kpi-ico" style="--c:rgba(251,146,60,.12)">◐</div><div><div class="kpi-v" id="kpiWeak">—</div><div class="kpi-l">At Risk</div></div></div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar glass-card" id="filterBar">
+      <span class="filter-lbl">Filter</span>
+      <select class="gs" id="fSubject"><option value="">All Subjects</option></select>
+      <select class="gs" id="fDept"><option value="">All Departments</option></select>
+      <select class="gs" id="fSection"><option value="">All Sections</option></select>
+      <select class="gs" id="fGrade"><option value="">All Grades</option></select>
+      <select class="gs" id="fStatus">
+        <option value="">All Status</option>
+        <option value="pass">Pass</option>
+        <option value="fail">Fail</option>
+        <option value="excellent">Excellent (≥85%)</option>
+        <option value="good">Good (70-84%)</option>
+        <option value="average">Average (50-69%)</option>
+        <option value="weak">Weak (40-49%)</option>
+      </select>
+      <button class="btn-outline sm" id="resetFilters">Reset</button>
+    </div>
+
+    <!-- Band cards -->
+    <div class="band-grid">
+      <div class="band-card glass-card"><div class="band-icon">✦</div><div class="band-name">Excellent</div><div class="band-count" id="bExcellent">—</div><div class="band-bar"><div class="band-fill" id="bExcellentFill" style="width:0%;background:#facc15"></div></div></div>
+      <div class="band-card glass-card"><div class="band-icon">◈</div><div class="band-name">Good</div><div class="band-count" id="bGood">—</div><div class="band-bar"><div class="band-fill" id="bGoodFill" style="width:0%;background:#86efac"></div></div></div>
+      <div class="band-card glass-card"><div class="band-icon">◒</div><div class="band-name">Average</div><div class="band-count" id="bAverage">—</div><div class="band-bar"><div class="band-fill" id="bAverageFill" style="width:0%;background:#fdba74"></div></div></div>
+      <div class="band-card glass-card"><div class="band-icon">◌</div><div class="band-name">Weak</div><div class="band-count" id="bWeak">—</div><div class="band-bar"><div class="band-fill" id="bWeakFill" style="width:0%;background:#fca5a5"></div></div></div>
+      <div class="band-card glass-card"><div class="band-icon">▼</div><div class="band-name">Failed</div><div class="band-count" id="bFailed">—</div><div class="band-bar"><div class="band-fill" id="bFailedFill" style="width:0%;background:#ef4444"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CHARTS ══ -->
+<section class="page-section" id="section-charts">
+  <div class="container">
+    <div class="sec-label">Step 03</div>
+    <h2 class="sec-title">Graph <span class="hl">Analytics</span></h2>
+    <div class="charts-grid" id="chartsGrid">
+
+      <div class="chart-card glass-card span2">
+        <div class="cc-hd">
+          <h4>Subject-wise Average Score</h4>
+          <div class="cc-btns">
+            <button class="cc-btn active" data-ckey="subjectAvg" data-type="bar">Bar</button>
+            <button class="cc-btn" data-ckey="subjectAvg" data-type="line">Line</button>
+          </div>
+        </div>
+        <div class="cs-lg"><canvas id="cSubjectAvg"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card span2">
+        <div class="cc-hd"><h4>Subject Pass / Fail Breakdown</h4></div>
+        <div class="cs-lg"><canvas id="cSubjectPF"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card">
+        <div class="cc-hd"><h4>Overall Pass vs Fail</h4></div>
+        <div class="cs"><canvas id="cPassFail"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card">
+        <div class="cc-hd"><h4>Grade Distribution</h4></div>
+        <div class="cs"><canvas id="cGrade"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card span2">
+        <div class="cc-hd"><h4>Score Distribution Bands</h4></div>
+        <div class="cs-lg"><canvas id="cScoreBands"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card">
+        <div class="cc-hd"><h4>GPA Distribution</h4></div>
+        <div class="cs"><canvas id="cGPA"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card">
+        <div class="cc-hd"><h4>Performance Bands Pie</h4></div>
+        <div class="cs"><canvas id="cBandPie"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card span2">
+        <div class="cc-hd"><h4>Internal vs External Comparison</h4></div>
+        <div class="cs-lg"><canvas id="cIntVsExt"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card">
+        <div class="cc-hd"><h4>Component Comparison</h4></div>
+        <div class="cs"><canvas id="cComponents"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card">
+        <div class="cc-hd"><h4>Department Comparison</h4></div>
+        <div class="cs"><canvas id="cDept"></canvas></div>
+      </div>
+
+      <div class="chart-card glass-card span2">
+        <div class="cc-hd"><h4>Student Score Trend (Ranked)</h4></div>
+        <div class="cs-lg"><canvas id="cTrend"></canvas></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ AI INSIGHTS ══ -->
+<section class="page-section insights-sec" id="section-insights">
+  <div class="container">
+    <div class="sec-label">Step 04</div>
+    <h2 class="sec-title">AI <span class="hl">Insights</span></h2>
+    <p class="sec-sub">Generated exclusively from computed analytics — no hardcoded messages</p>
+    <div class="insights-grid" id="insightsGrid">
+      <div class="insight-ph glass-card">
+        <span>✦</span>
+        <p>Upload a mark sheet to generate insights</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TABLE ══ -->
+<section class="page-section" id="section-table">
+  <div class="container">
+    <h2 class="sec-title">Student <span class="hl">Records</span></h2>
+    <div class="table-toolbar glass-card">
+      <input class="glass-input" id="tblSearch" placeholder="Search name, roll, subject…"/>
+      <select class="gs sm" id="tblPageSize">
+        <option value="10">10 rows</option>
+        <option value="25">25 rows</option>
+        <option value="50">50 rows</option>
+        <option value="100">100 rows</option>
+      </select>
+      <span class="tbl-count" id="tblCount">— records</span>
+      <button class="btn-outline sm" onclick="EXPORT.csv()">CSV</button>
+    </div>
+    <div class="table-card glass-card">
+      <div class="tbl-wrap" id="tblWrap">
+        <p class="ph-msg">Upload a sheet to view records</p>
+      </div>
+      <div class="pager" id="pager"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STUDENT MODAL ══ -->
+<div class="modal-bg hidden" id="modalBg">
+  <div class="modal glass-card" id="studentModal">
+    <button class="modal-x" id="modalX">✕</button>
+    <div class="modal-hd">
+      <div class="modal-av" id="modalAv">—</div>
+      <div class="modal-info">
+        <h3 id="modalName">Student</h3>
+        <p id="modalMeta">—</p>
+      </div>
+      <div class="modal-rank" id="modalRank">#—</div>
+    </div>
+    <div class="modal-marks" id="modalMarks"></div>
+    <div class="modal-stats-row" id="modalStatsRow"></div>
+    <div class="modal-radar"><canvas id="modalRadar"></canvas></div>
+    <div class="sw-grid">
+      <div class="sw-card str"><div class="sw-ttl">↑ Strengths</div><div id="modalStr">—</div></div>
+      <div class="sw-card wk"><div class="sw-ttl">↓ Weaknesses</div><div id="modalWk">—</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EXPORT ══ -->
+<section class="page-section" id="section-export">
+  <div class="container">
+    <div class="sec-label">Export</div>
+    <h2 class="sec-title">Download <span class="hl">Reports</span></h2>
+    <div class="export-grid">
+      <div class="exp-card glass-card"><div class="exp-ico">📄</div><h4>PDF Report</h4><p>Full analytics with charts</p><button class="btn-primary" onclick="EXPORT.pdf()">Download PDF</button></div>
+      <div class="exp-card glass-card"><div class="exp-ico">📊</div><h4>Excel Report</h4><p>Computed scores + statistics</p><button class="btn-primary" onclick="EXPORT.excel()">Download Excel</button></div>
+      <div class="exp-card glass-card"><div class="exp-ico">🖼</div><h4>Chart Images</h4><p>All charts as PNG files</p><button class="btn-primary" onclick="EXPORT.charts()">Download Charts</button></div>
+      <div class="exp-card glass-card"><div class="exp-ico">📋</div><h4>CSV Export</h4><p>Normalized data as CSV</p><button class="btn-primary" onclick="EXPORT.csv()">Download CSV</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <span class="footer-brand">◈ AcadAnalytics</span>
+  <span class="footer-copy">Dynamic Analytics Engine — Zero Hardcoding</span>
+</footer>
+
+<!-- ══ TOAST ══ -->
+<div class="toast hidden" id="toast"><span id="toastMsg">—</span></div>
+
+<!-- ══ LOADER ══ -->
+<div class="loader-overlay hidden" id="loaderOverlay">
+  <div class="loader-box glass-card">
+    <div class="spinner"></div>
+    <p id="loaderMsg">Processing…</p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
